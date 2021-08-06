@@ -62,7 +62,13 @@ EOF
 
 sudo sysctl --system
 
-# 4. set up the package repos
+# 4. turn off swap
+sudo swapoff -a
+sudo rm /swap.img
+
+# sudo vim /etc/fstab ... remove swap line (need to script TODO)
+
+# 5. set up the package repos
 
 curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key add -
 
@@ -70,10 +76,10 @@ cat <<EOF | sudo tee /etc/apt/sources.list.d/kubernetes.list
 deb https://apt.kubernetes.io/ kubernetes-xenial main
 EOF
 
-# 5. install packages
+# 6. install packages
 
 sudo apt update && sudo apt install -y kubelet kubeadm kubectl
 
-# 6. disable software updates
+# 7. disable software updates
 
 sudo apt-mark hold kubelet kubeadm kubectl
