@@ -1,5 +1,5 @@
 ---
-apiVersion: networking.k8s.io/v1 
+apiVersion: networking.k8s.io/v1beta1
 kind: Ingress
 metadata:
   namespace: "wikijs"
@@ -8,19 +8,16 @@ metadata:
     cert-manager.io/cluster-issuer: "letsencrypt-prod"
     nginx.ingress.kubernetes.io/proxy-body-size:  "50m"
 spec:
+  tls:
+  - hosts:
+    - "wiki.fortytwobinary.com"
+    secretName: "secret-tls"
   rules:
   - host: "wiki.fortytwobinary.com"
     http:
       paths:
         - path: /
-          pathType: Prefix
           backend:
-            service:
-              name: "wikijs"
-              port:
-                number: 3000
-  tls:
-  - hosts:
-    - "wiki.fortytwobinary.com"
-    secretName: "wikijs-prod-tls"
+            serviceName: "wikijs"
+            servicePort: 3000
 ---
