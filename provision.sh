@@ -59,6 +59,6 @@ EOF
 # install kubernetes packages 
 ######################################################################
 
-apt update && sudo apt install -y kubelet kubeadm kubectl
+apt update && sudo apt install -y --allow-downgrades kubelet=1.21.3-00 kubeadm=1.21.3-00 kubectl=1.21.3-00
 
 apt-mark hold kubelet kubeadm kubectl
