@@ -1,46 +1,40 @@
 #!/bin/bash
 # provision master and workers
 
-# 1. install the docker.io package
+# This file will be owned by root. It should only be run as sudo like
+# e.g. $ sudo bash provision.sh This file is not idempotent and is
+# destructive in nature.
 
-sudo apt install -y docker.io
+######################################################################
+# swap off
+######################################################################
+swapoff -a
+rm /swap.img
+sed -ie "s/\(.*swap.*\)/#\1/" /etc/fstab
 
-# example version dell-master
-# david@dell-master:~$ sudo docker version
-# Client:
-#  Version:           20.10.2
-#  API version:       1.41
-#  Go version:        go1.13.8
-#  Git commit:        20.10.2-0ubuntu2
-#  Built:             Tue Mar  2 05:51:34 2021
-#  OS/Arch:           linux/amd64
-#  Context:           default
-#  Experimental:      true
+######################################################################
+# iptables allow bridged traffic 
+######################################################################
 
-# Server:
-#  Engine:
-#  Version:          20.10.2
-#  API version:      1.41 (minimum version 1.12)
-#  Go version:       go1.13.8
-#  Git commit:       20.10.2-0ubuntu2
-#  Built:            Tue Mar  2 05:45:16 2021
-#  OS/Arch:          linux/amd64
-#  Experimental:     false
-# containerd:
-#  Version:          1.5.2-0ubuntu1~21.04.2
-#  GitCommit:
-# runc:
-#  Version:          1.0.0~rc95-0ubuntu1~21.04.2
-#  GitCommit:
-# docker-init:
-#  Version:          0.19.0
-#  GitCommit:
+cat <<EOF | tee /etc/sysctl.d/kubernetes.conf
+net.bridge.bridge-nf-call-ip6tables = 1
+net.bridge.bridge-nf-call-iptables = 1
+net.ipv4.ip_forward = 1
+EOF
 
-# Check docker info ... see that cgroups driver and limit support need attention
+sysctl --system
 
-# 2. Create or replace the contents of /etc/docker/daemon.json to enable the systemd cgroup driver
+######################################################################
+# install docker 
+######################################################################
 
-$ sudo cat > /etc/docker/daemon.json <<EOF
+apt install -y docker.io
+
+######################################################################
+# cgroups driver = systemd 
+######################################################################
+
+cat > /etc/docker/daemon.json <<EOF
 {
   "exec-opts": ["native.cgroupdriver=systemd"],
   "log-driver": "json-file",
@@ -51,35 +45,20 @@ $ sudo cat > /etc/docker/daemon.json <<EOF
 }
 EOF
 
-# 3. allow iptables to see bridged traffic
+######################################################################
+# package repos 
+######################################################################
 
-# Enable net.bridge.bridge-nf-call-iptables and -iptables6
-
-cat <<EOF | sudo tee /etc/sysctl.d/k8s.conf
-net.bridge.bridge-nf-call-ip6tables = 1
-net.bridge.bridge-nf-call-iptables = 1
-EOF
-
-sudo sysctl --system
-
-# 4. turn off swap
-sudo swapoff -a
-sudo rm /swap.img
-
-# sudo vim /etc/fstab ... remove swap line (need to script TODO)
-
-# 5. set up the package repos
-
-curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key add -
+curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key add -
 
 cat <<EOF | sudo tee /etc/apt/sources.list.d/kubernetes.list
 deb https://apt.kubernetes.io/ kubernetes-xenial main
 EOF
 
-# 6. install packages
+######################################################################
+# install kubernetes packages 
+######################################################################
 
-sudo apt update && sudo apt install -y kubelet kubeadm kubectl
+apt update && sudo apt install -y kubelet kubeadm kubectl
 
-# 7. disable software updates
-
-sudo apt-mark hold kubelet kubeadm kubectl
+apt-mark hold kubelet kubeadm kubectl
