@@ -4,13 +4,13 @@ metadata:
   name: wikijs-mariadb
   namespace: wikijs
   labels:
-    app: wikijs
+    app: mariadb 
 spec:
   ports:
     - port: 3306
   selector:
-    app: wikijs
-    tier: mariadb
+    app: mariadb 
+    tier: database 
   clusterIP: None
 ---
 apiVersion: apps/v1
@@ -19,19 +19,19 @@ metadata:
   name: wikijs-mariadb
   namespace: wikijs
   labels:
-    app: wikijs
+    app: mariadb 
 spec:
   selector:
     matchLabels:
-      app: wikijs
-      tier: mariadb
+      app: mariadb 
+      tier: database 
   strategy:
     type: Recreate
   template:
     metadata:
       labels:
-        app: wikijs
-        tier: mariadb
+        app: mariadb 
+        tier: database 
     spec:
       containers:
         - image: mariadb

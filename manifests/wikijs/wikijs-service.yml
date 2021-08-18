@@ -4,7 +4,7 @@ metadata:
   name: wikijs
   namespace: wikijs
 spec:
-  type: ClusterIP
+  type: NodePort 
   selector:
     app: wikijs
   ports:
