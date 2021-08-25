@@ -1,0 +1,23 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    role: webserver
+  name: apache
+  namespace: apache
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      role: webserver
+  template:
+    metadata:
+      labels:
+        role: webserver
+    spec:
+      containers:
+      - image: httpd
+        name: frontend
+        ports:
+        - containerPort: 80
+          protocol: TCP

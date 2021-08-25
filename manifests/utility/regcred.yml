@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: private-httpd
+spec:
+  containers:
+  - name: httpd-private
+    image: docker.dlwhitehurst.com/httpd:0.1
+  imagePullSecrets:
+  - name: regcred

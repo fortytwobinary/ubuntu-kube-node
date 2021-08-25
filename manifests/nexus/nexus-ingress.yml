@@ -1,0 +1,38 @@
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  namespace: "nexus"
+  name: "nexus-ingress"
+  annotations:
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+    nginx.ingress.kubernetes.io/proxy-body-size:  "50m"
+spec:
+  ingressClassName: nginx
+  tls:
+  - hosts:
+    - "nexus.dlwhitehurst.com"
+    - "docker.dlwhitehurst.com"
+    secretName: "nexus-prod-tls"
+  rules:
+  - host: "nexus.dlwhitehurst.com"
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: "nexus"
+            port:
+              number: 8081 
+  - host: "docker.dlwhitehurst.com"
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: "nexus"
+            port:
+              number: 5000 
+---

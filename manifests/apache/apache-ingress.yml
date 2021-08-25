@@ -2,8 +2,8 @@
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  namespace: "wikijs"
-  name: "wikijs-ingress"
+  namespace: "apache"
+  name: "apache-ingress"
   annotations:
     cert-manager.io/cluster-issuer: "letsencrypt-prod"
     nginx.ingress.kubernetes.io/proxy-body-size:  "50m"
@@ -11,17 +11,17 @@ spec:
   ingressClassName: nginx
   tls:
   - hosts:
-    - "wiki.dlwhitehurst.com"
-    secretName: "wikijs-stage-prod"
+    - "apache.dlwhitehurst.com"
+    secretName: "apache-prod-tls"
   rules:
-  - host: "wiki.dlwhitehurst.com"
+  - host: "apache.dlwhitehurst.com"
     http:
       paths:
       - path: /
         pathType: Prefix
         backend:
           service:
-            name: "wikijs"
+            name: "apache"
             port:
-              number: 3000 
+              number: 80 
 ---
